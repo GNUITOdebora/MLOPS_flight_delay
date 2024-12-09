@@ -1,0 +1,35 @@
+Format des données
+	'MONTH' : int , 'ORIGIN_AIRPORT': string , 'DESTINATION_AIRPORT': string , 'DEPARTURE_DELAY': float,
+       'SCHEDULED_TIME' float, 'SCHEDULED_ARRIVAL': datetime, 'AIR_SYSTEM_DELAY':float,
+       'SECURITY_DELAY': float, 'AIRLINE_DELAY':float, 'LATE_AIRCRAFT_DELAY':float,
+       'WEATHER_DELAY':float, 'DEPARTURE_TIME'datetime : 
+       'AIRLINE': string
+
+---------------------------------------------------------------------------------------------------------------------
+
+exemple de données
+
+MONTH : 11
+ORIGIN_AIRPORT : ANC
+DESTINATION_AIRPORT: SEA
+DEPARTURE_DELAY: -11.0
+SCHEDULED_TIME: 205.0
+SCHEDULED_ARRIVAL: 4h 30min
+AIR_SYSTEM_DELAY: 0.0
+SECURITY_DELAY: 0.0
+AIRLINE_DELAY: -10
+LATE_AIRCRAFT_DELAY: 0.0
+WEATHER_DELAY: 0.0	
+DEPARTURE_TIME: 8h 00
+AIRLINE:EV
+
+
+--------------------------------------------------------------------------------------------------------------
+liste des AIRLINE possible:
+dans le fichier airlines.csv
+
+---------------------------------------------------------------------------------------------------------------
+liste des AIRPORT(ORIGIN_AIRPORT et  possible)
+dans le fichier airports.csv
+
+	
