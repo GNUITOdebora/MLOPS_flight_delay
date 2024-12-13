@@ -1,59 +1,81 @@
-
 import pandas as pd
-import pickle
-import datetime as dt
+from fastapi import FastAPI, File, UploadFile
+import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+import mlflow
+from src.clean_data_csv import clean_data_csv
+from src.clean_data_json import clean_data_json
+from example_json.flight_info import FlightDataModel
+import os
+import mlflow.pyfunc
+
+os.environ['MLFLOW_TRACKING_USERNAME']= "deb.gnuito"
+os.environ["MLFLOW_TRACKING_PASSWORD"] = "#Dagshub2001"
+
+
 """
-This function serves to clean the incoming new data in production when it is JSON format
+from dotenv import load_dotenv
+import os
+load_dotenv("../backend/src/secret.env")
+
+DagsHub_username = os.getenv("DAGHUB_USERNAME")
+DagsHub_token=os.getenv("DAGHUB_PASSWORD")
+os.environ['MLFLOW_TRACKING_USERNAME']= DagsHub_username
+os.environ["MLFLOW_TRACKING_PASSWORD"] = DagsHub_token
 """
 
-training_cols = ['amt', 'gender', 'zip', 'lat', 'long', 'merch_lat', 'merch_long',
-       'year', 'month', 'day', 'hour', 'minute', 'sec', 'age',
-       'category_entertainment', 'category_food_dining',
-       'category_gas_transport', 'category_grocery_net',
-       'category_grocery_pos', 'category_health_fitness', 'category_home',
-       'category_kids_pets', 'category_misc_net', 'category_misc_pos',
-       'category_personal_care', 'category_shopping_net',
-       'category_shopping_pos', 'category_travel']
-
-def fix_missing_cols(training_cols, new_data):
-    missing_cols = set(training_cols) - set(new_data.columns)
-     # Add a missing column in test set with default value equal to 0
-    for c in missing_cols:
-        new_data[c] = 0
-    # Ensure the order of column in the test set is in the same order than in train set
-    new_data = new_data[training_cols]
-    return new_data
+#setup mlflow
+mlflow.set_tracking_uri('https://dagshub.com/deb.gnuito/MLOPS.mlflow') #your mlfow tracking uri
 
 
+app = FastAPI()
+origins = ['*']
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-def clean_data_json(df):
-    col_todate = ["trans_date_trans_time", "dob"]
-    # transform specific cols to datetime type
-    for col in col_todate:
-        # convert trans_date_trans_time , dob to datetime
-        df[col] = pd.to_datetime(df[col])
-    #extract new cols
-    # create new columns day,month,year
-    df["year"] = df["trans_date_trans_time"].dt.year
-    df["month"] = df["trans_date_trans_time"].dt.month
-    df["day"] = df["trans_date_trans_time"].dt.day
-    # Extract hour,minute and second
-    df["hour"] = df["trans_date_trans_time"].dt.hour
-    df["minute"] = df["trans_date_trans_time"].dt.minute 
-    df["sec"] = df["trans_date_trans_time"].dt.second
-    # Extract age of card holder column
-    df['age'] = dt.date.today().year - pd.to_datetime(df['dob']).dt.year
-    # drop unusefull columns
-    df.drop(["dob", "trans_date_trans_time"], axis=1, inplace=True)
-    # select numerical features
-    num_features = df.select_dtypes(include=['integer']).columns.tolist()
-    # select categorical features
-    categ_features = df.select_dtypes(include=['object']).columns.tolist()
-    encode_dict = {  # Encoding dictionary
-        'F': 0, 'M': 1}
-    df['gender'] = df['gender'].map(encode_dict)
-    dummy_cols = ['category']
-    df = pd.get_dummies(df, columns=dummy_cols,dtype=float)
-    df = fix_missing_cols(training_cols,df)
-    return df
+#let's call the model from the model registry ( in production stage)
+
+df_mlflow=mlflow.search_runs(filter_string="metrics.R2_Score < 1")
+run_id = df_mlflow.loc[df_mlflow['metrics.R2_Score'].idxmax()]['run_id']
+
+
+
+logged_model = f'runs:/{run_id}/ML_models'
+
+# Load model as a PyFuncModel.
+model = mlflow.pyfunc.load_model(logged_model)
+
+@app.get("/")
+def read_root():
+    return {"Hello": "to flight delay prediction app version 2"}
+
+# this endpoint receives data in the form of csv file (histotical transactions data)
+@app.post("/predict/csv")
+def return_predictions(file: UploadFile = File(...)):
+    data = pd.read_csv(file.file)
+    preprocessed_data = clean_data_csv(data)
+    predictions = model.predict(preprocessed_data)
+    return {"predictions": predictions.tolist()}
+
+
+# this endpoint receives data in the form of json (informations about one transaction)
+@app.post("/predict")
+def predict(data : FlightDataModel):
+    received = data.dict()
+    df =  pd.DataFrame(received,index=[0])
+    preprocessed_data = clean_data_json(df)
+    print(preprocessed_data)
+    predictions = model.predict(preprocessed_data)
+    return {"predictions": predictions.tolist()}
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8080)
+

@@ -4,6 +4,32 @@ from sklearn.preprocessing import LabelEncoder
 import pickle
 import numpy as np
 
+import os
+import subprocess
+
+def git_push(file_path, commit_message):
+    try:
+        # Vérifier l'état de Git
+        status_result = subprocess.run(["git", "status", "--porcelain"], check=True, stdout=subprocess.PIPE, text=True)
+        if file_path not in status_result.stdout:
+            print(f"Aucun changement détecté pour {file_path}.")
+            return
+        
+        # Ajouter le fichier au staging area
+        subprocess.run(["git", "add", file_path], check=True)
+
+        # Effectuer le commit
+        subprocess.run(["git", "commit", "-m", commit_message], check=True)
+
+        # Push vers le dépôt
+        subprocess.run(["git", "push"], check=True)
+
+        print("Fichier poussé avec succès sur le dépôt Git.")
+    except subprocess.CalledProcessError as e:
+        print(f"Erreur lors de l'exécution des commandes Git : {e}")
+
+
+
 def preprocess_and_split(df):
     # 1. Sélectionner les colonnes pertinentes
     df = df[['MONTH', 'AIRLINE', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 
@@ -73,6 +99,8 @@ def preprocess_and_split(df):
 
     # Sauvegarder l'encodeur pour un usage futur
     pickle.dump(airport_encoder, open('airport_encoder.pickle', "wb"))
+    # un push automatique sur le git !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    git_push("airport_encoder.pickle", "Nouveau encodeur des aéroports")
 
     # Séparer les caractéristiques (X) et la variable cible (y)
     X = df_encoded.drop(columns=['ARRIVAL_DELAY'])  # Toutes les colonnes sauf ARRIVAL_DELAY
@@ -82,3 +110,4 @@ def preprocess_and_split(df):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     return X_train, X_test, y_train, y_test
+
