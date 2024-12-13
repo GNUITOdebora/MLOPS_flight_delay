@@ -1,2 +1,2 @@
 /data
-.env
+backend/src/secret.env
