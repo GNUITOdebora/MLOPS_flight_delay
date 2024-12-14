@@ -6,6 +6,7 @@ import json
 import io
 st.set_page_config(layout="wide")
 
+
 # Dictionnaire de correspondance des compagnies aériennes
 airline_mapping = {
     'United Air Lines Inc.': 'UA',
