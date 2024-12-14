@@ -1,0 +1,5 @@
+Origin Airport,Destination Airport,Airline,Month,Departure Delay,Scheduled Flight Duration,Departure Time,Weather Delay,Scheduled Arrival Time,Air System Delay,Security Delay,Airline Delay,Late Aircraft Delay
+JFK,LAX,UA,1,10,180,12:00,0,15:00,5,2,3,1
+ORD,SFO,AA,3,5,200,14:30,0,17:00,3,1,4,2
+MIA,ATL,DL,6,0,150,09:30,0,11:45,0,0,2,0
+LAX,ORD,WN,11,20,240,08:00,5,12:30,2,1,5,3
