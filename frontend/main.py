@@ -79,7 +79,7 @@ with st.form("flight_form", clear_on_submit=False):
 
     if submit:
         # Envoi des données à l'API pour prédiction en JSON
-        res = requests.post("http://127.0.0.1:8080/predict", data=json.dumps(dd))
+        res = requests.post("http://172.17.0.2:8080/predict", data=json.dumps(dd))
 
         if res.status_code == 200:
             predictions = res.json().get("predictions")
