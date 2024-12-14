@@ -105,7 +105,7 @@ elif app_mode == "Flight Prediction Form":
 
         if submit:
             # Send data to the API
-            res = requests.post("http://172.17.0.2:8080/predict", data=json.dumps(dd))
+            res = requests.post("https://mlops-flight-delay-70a262ef3147.herokuapp.com/predict", data=json.dumps(dd))
 
             if res.status_code == 200:
                 predictions = res.json().get("predictions")
@@ -186,7 +186,7 @@ elif app_mode == "Upload Historical Data":
 
         # Send CSV file for prediction
         file = {"file": data.getvalue()}
-        res = requests.post("http://172.17.0.2:8080/predict/csv", files=file)
+        res = requests.post("https://mlops-flight-delay-70a262ef3147.herokuapp.com/predict/csv", files=file)
 
         if res.status_code == 200:
             predictions = res.json().get("predictions")
