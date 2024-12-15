@@ -9,8 +9,8 @@ from example_json.flight_info import FlightDataModel
 import os
 import mlflow.pyfunc
 
-os.environ['MLFLOW_TRACKING_USERNAME']= "deb.gnuito"
-os.environ["MLFLOW_TRACKING_PASSWORD"] = "#Dagshub2001"
+os.environ['MLFLOW_TRACKING_USERNAME']= ".."
+os.environ["MLFLOW_TRACKING_PASSWORD"] = ".."
 
 
 """
