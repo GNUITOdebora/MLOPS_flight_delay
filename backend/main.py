@@ -16,7 +16,7 @@ os.environ["MLFLOW_TRACKING_PASSWORD"] = "#Dagshub2001"
 """
 from dotenv import load_dotenv
 import os
-load_dotenv("../backend/src/secret.env")
+load_dotenv("../backend/src/.env")
 
 DagsHub_username = os.getenv("DAGHUB_USERNAME")
 DagsHub_token=os.getenv("DAGHUB_PASSWORD")
