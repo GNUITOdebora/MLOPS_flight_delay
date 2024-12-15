@@ -10,7 +10,7 @@ from treatement import LSTMModel
 
 #Load environement variable (Dagshub credentials)
 from dotenv import load_dotenv
-load_dotenv("../backend/src/secret.env")
+load_dotenv("../backend/src/.env")
 
 DagsHub_username = os.getenv("DAGHUB_USERNAME")
 DagsHub_token=os.getenv("DAGHUB_PASSWORD")
