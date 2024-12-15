@@ -6,6 +6,7 @@ import mlflow
 from treatement import DecisionTreeRegressor
 from treatement import XGBRegressor
 from treatement import LinearRegression
+from treatement import LSTMModel
 
 #Load environement variable (Dagshub credentials)
 from dotenv import load_dotenv
@@ -35,4 +36,5 @@ X_train,X_test,y_train,y_test = transform_data(df)
 LinearRegression(data_url,version,df,X_train,y_train,X_test,y_test)
 XGBRegressor(data_url,version,df,X_train,y_train,X_test,y_test)
 DecisionTreeRegressor(data_url,version,df,X_train,y_train,X_test,y_test)
+LSTMModel(data_url,version,df,X_train,y_train,X_test,y_test)
 

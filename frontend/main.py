@@ -31,7 +31,7 @@ airline_mapping = {
 st.markdown(""" <h1 style='color: #0086fc;'> ✈️ Flight Delay Predictor ✈️ </h1>  """, unsafe_allow_html=True)
 
 # Sidebar layout with logo and navigation
-st.sidebar.image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ-_qwPouFTdBd2PRscHdtNoFv_5LEY7eZEA&s", width=400)
+st.sidebar.image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ-_qwPouFTdBd2PRscHdtNoFv_5LEY7eZEA&s", width=250)
 app_mode = st.sidebar.radio("Choose page", ["Data Visualization", "Flight Prediction Form", "Upload Historical Data","Team"])
 
 # If user chooses the PDF viewer page (Page 1)

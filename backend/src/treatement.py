@@ -6,6 +6,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 import xgboost as xgb
 import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
 warnings.filterwarnings("ignore")
 
 def LinearRegression(data_url,version,df,X_train,y_train,X_test,y_test):
@@ -116,3 +118,54 @@ def DecisionTreeRegressor(data_url,version,df,X_train,y_train,X_test,y_test):
 
         # Enregistrer le modèle
         mlflow.sklearn.log_model(Decision_Tree, artifact_path="ML_models")
+
+def LSTMModel(data_url, version, df, X_train, y_train, X_test, y_test):
+    # Désactiver l'autologging de MLflow pour éviter les conflits
+    mlflow.keras.autolog(disable=True)
+
+    with mlflow.start_run(run_name='LSTM_Model'):
+        # Enregistrer les paramètres
+        mlflow.log_param("data_url", data_url)
+        mlflow.log_param("data_version", version)
+        mlflow.log_param("input_rows", df.shape[0])
+        mlflow.log_param("input_cols", df.shape[1])
+
+        # Créer et entraîner le modèle LSTM
+        model = Sequential()
+        model.add(LSTM(units=50, return_sequences=False, input_shape=(X_train.shape[1], 1)))  # LSTM
+        model.add(Dense(units=1))  # Couche de sortie
+
+        model.compile(optimizer='adam', loss='mean_squared_error')
+
+        # Enregistrer les hyperparamètres
+        mlflow.set_tag(key="model", value="LSTM")
+        params = {"units": 50, "optimizer": "adam", "loss": "mean_squared_error"}
+        mlflow.log_params(params)
+
+        # Entraîner le modèle
+        model.fit(X_train, y_train, epochs=4, batch_size=128, verbose=1)
+
+        # Enregistrer les noms des caractéristiques d'entrée et de sortie
+        train_features_name = f'{X_train=}'.split('=')[0]
+        train_label_name = f'{y_train=}'.split('=')[0]
+        mlflow.set_tag(key="train_features_name", value=train_features_name)
+        mlflow.set_tag(key="train_label_name", value=train_label_name)
+
+        # Prédictions sur le jeu de test
+        predictions = model.predict(X_test)
+
+        # Calcul des métriques
+        mse = mean_squared_error(y_test, predictions)
+        mae = mean_absolute_error(y_test, predictions)
+        rmse = np.sqrt(mse)
+        r2 = r2_score(y_test, predictions)
+
+        # Enregistrer les métriques dans MLflow
+        mlflow.log_metric("MSE", mse)
+        mlflow.log_metric("MAE", mae)
+        mlflow.log_metric("RMSE", rmse)
+        mlflow.log_metric("R2_Score", r2)
+
+        # Enregistrer le modèle LSTM dans MLflow
+        mlflow.keras.log_model(model, artifact_path="ML_models")
+
